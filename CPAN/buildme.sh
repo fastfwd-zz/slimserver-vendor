@@ -562,7 +562,7 @@ function build_module {
             else
                 echo "make failed, aborting"
             fi
-            exit $?
+            exit 1
         fi
         $MAKE install
 
@@ -628,7 +628,7 @@ function build {
                     else
                         echo "make failed, aborting"
                     fi
-                    exit $?
+                    exit 1
                 fi
                 $MAKE install
                 if [ $CLEAN -eq 1 ]; then
@@ -700,7 +700,7 @@ function build {
                 $MAKE
                 if [ $? != 0 ]; then
                     echo "make failed"
-                    exit $?
+                    exit 1
                 fi
                 $MAKE install
 
@@ -806,6 +806,13 @@ function build {
             if [ "$OS" != "FreeBSD" ]; then
                 build_module common-sense-2.0
 
+                # Perl 5.44 defines atfork_child as a macro for Perl_atfork_child in embed.h,
+                # which clashes with the static atfork_child() in AIO.xs. Rename ours.
+                tar_wrapper zxf IO-AIO-3.71.tar.gz
+                cd IO-AIO-3.71
+                patch -p1 < ../IO-AIO-perl544.patch
+                cd ..
+
                 # Don't use the darwin hints file, it breaks if compiled on Snow Leopard with 10.5 (!?)
                 build_module IO-AIO-3.71 "" 0 $CLEAN 0
             fi
@@ -846,7 +853,7 @@ function build {
 
             if [ $? != 0 ]; then
                 echo "make failed, aborting"
-                exit $?
+                exit 1
             fi
 
             $MAKE install
@@ -912,7 +919,9 @@ function build {
             build_module Sub-Uplevel-0.22 "" 0
             build_module Tree-DAG_Node-1.06 "" 0
             build_module Test-Warn-0.23 "" 0
-            build_module Audio-Scan-1.13
+            build_module Module-CPANfile-1.1004 "" 0
+            build_module ExtUtils-MakeMaker-CPANfile-0.11 "" 0
+            build_module Audio-Scan-1.14
             ;;
 
         MP3::Cut::Gapless)
@@ -948,7 +957,7 @@ function build {
             make
             if [ $? != 0 ]; then
                 echo "make failed"
-                exit $?
+                exit 1
             fi
             make install
             cd ..
@@ -979,7 +988,7 @@ function build {
             $MAKE
             if [ $? != 0 ]; then
                 echo "make failed"
-                exit $?
+                exit 1
             fi
             $MAKE install
             cd ..
@@ -1024,7 +1033,7 @@ function build {
             $MAKE # needed for FreeBSD to use gmake
             if [ $? != 0 ]; then
                 echo "make failed"
-                exit $?
+                exit 1
             fi
             $MAKE install
             cd ..
@@ -1084,7 +1093,7 @@ function build {
             $MAKE
             if [ $? != 0 ]; then
                 echo "make failed"
-                exit $?
+                exit 1
             fi
             $MAKE install
             cd ..
@@ -1107,13 +1116,13 @@ function build {
                 $MAKE
                 if [ $? != 0 ]; then
                     echo "make failed, aborting"
-                    exit $?
+                    exit 1
                 fi
                 # XXX hack until regular test works
                 $PERL_BIN -Iblib/lib -Iblib/arch t/01use.t
                 if [ $? != 0 ]; then
                     echo "make test failed, aborting"
-                    exit $?
+                    exit 1
                 fi
                 $MAKE install
                 if [ $CLEAN -eq 1 ]; then
@@ -1180,7 +1189,7 @@ function build_libexif {
     $MAKE
     if [ $? != 0 ]; then
         echo "make failed"
-        exit $?
+        exit 1
     fi
     $MAKE install
     cd ..
@@ -1219,7 +1228,7 @@ function build_libjpeg {
         $MAKE
         if [ $? != 0 ]; then
             echo "make failed"
-            exit $?
+            exit 1
         fi
 
         $MAKE install
@@ -1238,7 +1247,7 @@ function build_libjpeg {
         $MAKE
         if [ $? != 0 ]; then
             echo "make failed"
-            exit $?
+            exit 1
         fi
 
         $MAKE install
@@ -1259,7 +1268,7 @@ function build_libjpeg {
         $MAKE
         if [ $? != 0 ]; then
             echo "make failed"
-            exit $?
+            exit 1
         fi
         $MAKE install
         cd ..
@@ -1291,7 +1300,7 @@ function build_libpng {
     $MAKE && $MAKE check
     if [ $? != 0 ]; then
         echo "make failed"
-        exit $?
+        exit 1
     fi
     $MAKE install
     cd ..
@@ -1315,7 +1324,7 @@ function build_giflib {
     $MAKE
     if [ $? != 0 ]; then
         echo "make failed"
-        exit $?
+        exit 1
     fi
     $MAKE install
     cd ..
@@ -1397,7 +1406,7 @@ function build_ffmpeg {
             $MAKE
             if [ $? != 0 ]; then
                 echo "make failed"
-                exit $?
+                exit 1
             fi
 
             cp -f libavcodec/libavcodec.a libavcodec-x86_64.a
@@ -1416,7 +1425,7 @@ function build_ffmpeg {
         $MAKE
         if [ $? != 0 ]; then
             echo "make failed"
-            exit $?
+            exit 1
         fi
 
         cp -f libavcodec/libavcodec.a libavcodec-i386.a
@@ -1435,7 +1444,7 @@ function build_ffmpeg {
          $MAKE
          if [ $? != 0 ]; then
                echo "make failed"
-               exit $?
+               exit 1
          fi
 
             cp -f libavcodec/libavcodec.a libavcodec-ppc.a
@@ -1474,7 +1483,7 @@ function build_ffmpeg {
         $MAKE
         if [ $? != 0 ]; then
             echo "make failed"
-            exit $?
+            exit 1
         fi
         $MAKE install
         cd ..
@@ -1513,7 +1522,7 @@ function build_bdb {
     $MAKE
     if [ $? != 0 ]; then
         echo "make failed"
-        exit $?
+        exit 1
     fi
     $MAKE install
     cd ../..
